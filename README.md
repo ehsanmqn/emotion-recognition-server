@@ -93,3 +93,7 @@ For ava:
 9. Configure firewall:
 
         sudo ufw allow 'Nginx Full'
+
+
+<h1>How to use UI?</h1>
+HTML UI located in ui folder. In order to use it in chrome you should install an extension named "Allow-Controll-Allow-Origin"

@@ -30,15 +30,15 @@ def check_if_token_in_blacklist(decrypted_token):
 
 import views, models, resources
 
-api.add_resource(resources.UserRegistration, '/registration')
-api.add_resource(resources.UserLogin, '/login')
-api.add_resource(resources.UserLogoutAccess, '/logout/access')
-api.add_resource(resources.UserLogoutRefresh, '/logout/refresh')
-api.add_resource(resources.TokenRefresh, '/token/refresh')
-api.add_resource(resources.AllUsers, '/users')
-api.add_resource(resources.SecretResource, '/secret')
-api.add_resource(resources.PredictWithModel1, '/predict/model1')
-api.add_resource(resources.PredictWithModel1ForAVA, '/predict/avamodel1')
+api.add_resource(resources.UserRegistration, '/api/registration')
+api.add_resource(resources.UserLogin, '/api/login')
+api.add_resource(resources.UserLogoutAccess, '/api/logout/access')
+api.add_resource(resources.UserLogoutRefresh, '/api/logout/refresh')
+api.add_resource(resources.TokenRefresh, '/api/token/refresh')
+api.add_resource(resources.AllUsers, '/api/users')
+api.add_resource(resources.SecretResource, '/api/secret')
+api.add_resource(resources.PredictWithModel1, '/api/predict/model1')
+api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/avamodel1')
 
 
 if __name__ == '_main_':
