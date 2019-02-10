@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>Test Dense Server</title>
+    </head>
+    <body>
+        <form id="myForm" name="myForm" method="POST" action="http://127.0.0.1:5000/predict/model1" enctype=multipart/form-data>
+            <input type="file" name="file" id="fileinput"><br />
+            <input type="submit" value="submit"><br />
+        </form>
+
+        <button type="button" onclick="loadDoc()">Request data</button>
+        <button type="button" onclick="predicWithModel1()">Predict</button>
+
+        <p id="demo">Demo</p>
+        <h1>Authors</h1>
+  		<ul id="authors"></ul>
+
+        <script>
+			function loadDoc() {
+				fetch('http://127.0.0.1:5000', {
+			  		// mode: 'no-cors',
+			  		method: 'GET',
+			  		headers: {
+			    	Accept: 'application/json',
+			  		},
+				},
+				).then(response => {
+					if (response.ok) {
+				    	response.json().then(json => {
+				      	console.log(json);
+				      	document.getElementById("demo").innerHTML = json.message;
+				    });
+				  	}
+  					console.log(response.headers.get('Content-Type'))
+  					console.log(response.headers.get('Date'))
+  					console.log(response.status)
+  					console.log(response.statusText)
+  					console.log(response.url)
+  					console.log(response)
+				})
+  				// .then(response => response.json())
+  				// .then(body => console.log(body))
+				.catch(err => console.error(err))
+			}
+
+			function predicWithModel1() {
+				let myForm = document.getElementById('myForm');
+				let formData = new FormData(myForm);
+
+				fetch('http://127.0.0.1:5000/predict/model1', {
+			  		// mode: 'no-cors',
+			  		method: 'POST',
+			  		// headers: {
+			    // 	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    			// 	'Content-Type': 'multipart/form-data',
+    			// 	'Cache-Control':'max-age=0',
+    			// 	'Upgrade-Insecure-Requests':1,
+			  		// },
+			  		body: formData
+				},
+				).then(response => {
+					if (response.ok) {
+				    	response.json().then(json => {
+				      	console.log(json);
+				      	console.log(json.result[0].Angry);
+				      	document.getElementById("demo").innerHTML = json.message;
+				    });
+				  	}
+  					console.log(response)
+				})
+  				// .then(response => response.json())
+  				// .then(body => console.log(body))
+				.catch(err => console.error(err))
+			}
+		</script>
+    </body>
+</html>
