@@ -4,7 +4,7 @@
 
 from flask_restful import Resource
 from flask_restful import Resource, reqparse
-from models import UserModel, RevokedTokenModel
+from models import UserModel, RevokedTokenModel, AnalyticsModel
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, jwt_refresh_token_required, get_jwt_identity, get_raw_jwt)
 from run import app
 from flask import jsonify
@@ -18,21 +18,172 @@ import logging, os
 import scipy.io.wavfile
 import Vokaturi
 import process
+import datetime
 from setting import APP_STATIC
 
 Vokaturi.load("./emotion-lib-linux64.so")
-
-parser = reqparse.RequestParser()
-parser.add_argument('username', help = 'This field cannot be blank', required = True)
-parser.add_argument('password', help = 'This field cannot be blank', required = True)
 
 file_handler = logging.FileHandler('server.log')
 app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 
+class AddAnalytics(Resource):
+    """docstring for AddAnalytics"""
+    
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('extension', help = 'This field cannot be blank', required = True)
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+        parser.add_argument('filename', help = 'This field cannot be blank', required = True)
+        parser.add_argument('time', help = 'This field cannot be blank', required = True)
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+        parser.add_argument('duration', help = 'This field cannot be blank', required = True)
+        parser.add_argument('direction', help = 'This field cannot be blank', required = True)
+        parser.add_argument('location', help = 'This field cannot be blank', required = True)
+        parser.add_argument('status', help = 'This field cannot be blank', required = True)
+        parser.add_argument('angry', help = 'This field cannot be blank', required = True)
+        parser.add_argument('happy', help = 'This field cannot be blank', required = True)
+        parser.add_argument('neutral', help = 'This field cannot be blank', required = True)
+        parser.add_argument('sad', help = 'This field cannot be blank', required = True)
+        parser.add_argument('fear', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        if AnalyticsModel.findByFilename(data['filename']):
+            return {'message': 'File {} already exists'. format(data['filename'])}
+
+        newAnalytics = AnalyticsModel(
+            extension = data['extension'],
+            username = data['username'],
+            filename = data['filename'],
+            time = datetime.datetime.now(),
+            day = data['day'],
+            month = data['month'],
+            year = data['year'],
+            duration = data['duration'],
+            direction = data['direction'],
+            location = data['location'],
+            status = data['status'],
+            angry = data['angry'],
+            happy = data['happy'],
+            neutral = data['neutral'],
+            sad = data['sad'],
+            fear = data['fear']
+        )
+        try:
+            newAnalytics.save_to_db()
+            return {
+                'message': 'Analytics {} added'.format(data['filename'])
+                }
+        except:
+            return {'message': 'Something went wrong'}, 500
+
+
+class AllAnalytics(Resource):
+    """docstring for AnalyticsByExtension"""
+    def get(self):
+        return AnalyticsModel.ReturnAll()
+    
+    def delete(self):
+        return AnalyticsModel.DeleteAll()
+
+
+class AllAnalyticsIncomings(Resource):
+    """docstring for AnalyticsByExtension"""
+    def get(self):
+        return AnalyticsModel.ReturnAllIncomings()
+
+
+class AllAnalyticsOutgoings(Resource):
+    """docstring for AnalyticsByExtension"""
+    def get(self):
+        return AnalyticsModel.ReturnAllOutgoings()
+
+
+class AllAnalyticsFiles(Resource):
+    """docstring for AnalyticsByExtension"""
+    def get(self):
+        return AnalyticsModel.ReturnAllFilenames()
+
+
+class AllAnalyticsExtensions(Resource):
+    """docstring for AnalyticsByExtension"""
+    def get(self):
+        return AnalyticsModel.ReturnAllExtensions()
+    
+
+class AnalyticsByExtension(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('extension', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByExtension(data['extension'])
+
+
+class AnalyticsByUsername(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByUsername(data['username'])
+
+class AnalyticsByFilename(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('filename', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByFilename(data['filename'])
+
+class AnalyticsByDay(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDay(data['day'], data['month'], data['year'])
+
+class AnalyticsByMonth(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByMonth(data['month'], data['year'])
+
+class AnalyticsByYear(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByYear(data['year'])
 
 class UserRegistration(Resource):
     def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+        parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
         data = parser.parse_args()
         if UserModel.find_by_username(data['username']):
             return {'message': 'User {} already exists'. format(data['username'])}
@@ -114,11 +265,12 @@ class AllUsers(Resource):
       
       
 class SecretResource(Resource):
-    @jwt_required
+    # @jwt_required
     def get(self):
         return {
             'answer': 42
         }
+
 
 class PredictWithModel1(Resource):
     # @jwt_required
@@ -138,6 +290,7 @@ class PredictWithModel1(Resource):
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return jsonify(result)
 
+
 class PredictWithModel1ForAVA(Resource):
     # @jwt_required
     def post(self):
@@ -152,3 +305,4 @@ class PredictWithModel1ForAVA(Resource):
         app.config['UPLOAD_FOLDER'] = _dir
         result = process.model1GetResultForAVA(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return result
+
