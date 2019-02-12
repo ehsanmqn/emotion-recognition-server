@@ -157,6 +157,126 @@ class AnalyticsByDay(Resource):
 
         return AnalyticsModel.AnalyticsByDay(data['day'], data['month'], data['year'])
 
+class AnalyticsByDayAverageDuration(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageDuration(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageAngry(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageAngry(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageHappy(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageHappy(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageNeutral(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageNeutral(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageSad(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageSad(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageFear(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageFear(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayAverageEmotions(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayAverageEmotions(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayTotalCalls(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayTotalCalls(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayTotalIncomingCalls(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayTotalIncomingCalls(data['day'], data['month'], data['year'])
+
+class AnalyticsByDayTotalOutgoingCalls(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('day', help = 'This field cannot be blank', required = True)
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByDayTotalOutgoingCalls(data['day'], data['month'], data['year'])
+
 class AnalyticsByMonth(Resource):
     """docstring for AnalyticsByExtension"""
     def post(self):
@@ -168,6 +288,17 @@ class AnalyticsByMonth(Resource):
 
         return AnalyticsModel.AnalyticsByMonth(data['month'], data['year'])
 
+class AnalyticsByMonthAverageDuration(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('month', help = 'This field cannot be blank', required = True)
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByMonthAverageDuration(data['month'], data['year'])
+
 class AnalyticsByYear(Resource):
     """docstring for AnalyticsByExtension"""
     def post(self):
@@ -177,6 +308,16 @@ class AnalyticsByYear(Resource):
         data = parser.parse_args()
 
         return AnalyticsModel.AnalyticsByYear(data['year'])
+
+class AnalyticsByYearAverageDuration(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('year', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByYearAverageDuration(data['year'])
 
 class UserRegistration(Resource):
     def post(self):
@@ -284,10 +425,44 @@ class PredictWithModel1(Resource):
         if not os.path.isdir(_dir):
             os.mkdir(_dir)
         filename = secure_filename(files.filename)
-        print (filename)
+
+        # Check for redunduncy
+        if AnalyticsModel.findByFilename(filename):
+            return {'message': 'File {} already exists'. format(filename)}
+
         to_path = os.path.join(_dir, filename)
         files.save(to_path)
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        # This lines added after adding analytics to SABA
+        data = result['result'][0]
+        dt = datetime.datetime.today()
+        newAnalytics = AnalyticsModel(
+            extension = 4111,
+            username = '4111',
+            filename = filename,
+            time = datetime.datetime.now(),
+            day = dt.day,
+            month = dt.month,
+            year = dt.year,
+            duration = 123,
+            direction = 1,
+            location = 'Tehran',
+            status = 'calling',
+            angry = data['angry'],
+            happy = data['happy'],
+            neutral = data['neutral'],
+            sad = data['sad'],
+            fear = data['fear']
+        )
+        try:
+            newAnalytics.save_to_db()
+            return {
+                'message': 'Analytics {} added'.format(filename)
+                }
+        except:
+            return {'message': 'Something went wrong'}, 500
+
         return jsonify(result)
 
 

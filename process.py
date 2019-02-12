@@ -101,13 +101,13 @@ def model1GetResult(voice_Selection):
 	if quality.valid:
 		result_of ={
 		"request":"ok",
-		"Model": "1",
+		"model": "1",
 		"result":[ {
-		"Neutral":"%.3f"%emotionProbabilities.neutrality,
-		"Happy":"%3f"%emotionProbabilities.happiness,
-		"Sad":" %.3f" % emotionProbabilities.sadness,
-		"Angry":" %.3f" % emotionProbabilities.anger,
-		"Fear":" %.3f" % emotionProbabilities.fear
+		"neutral":"%.3f"%emotionProbabilities.neutrality,
+		"happy":"%3f"%emotionProbabilities.happiness,
+		"sad":" %.3f" % emotionProbabilities.sadness,
+		"angry":" %.3f" % emotionProbabilities.anger,
+		"fear":" %.3f" % emotionProbabilities.fear
 		}]}
 	else:
 		result_of={"request":"null", "result":[]}

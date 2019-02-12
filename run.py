@@ -33,33 +33,81 @@ def check_if_token_in_blacklist(decrypted_token):
 
 import views, models, resources
 
-# User authentication APIs
+### User authentication APIs
+# Register new user
 api.add_resource(resources.UserRegistration, '/api/register')
+# Login with username and password
 api.add_resource(resources.UserLogin, '/api/login')
+# Logout user
 api.add_resource(resources.UserLogoutAccess, '/api/logout/access')
+# Logout refresh
 api.add_resource(resources.UserLogoutRefresh, '/api/logout/refresh')
+# Refresh token
 api.add_resource(resources.TokenRefresh, '/api/token/refresh')
+# List all the users
 api.add_resource(resources.AllUsers, '/api/users')
+# I dont know what is this!!!
 api.add_resource(resources.SecretResource, '/api/secret')
 
-# Emotion analysis APIs
+### Emotion analysis APIs
+# Analyze file for emotions. File upload via POST
 api.add_resource(resources.PredictWithModel1, '/api/predict/model1')
+# Analyze file for emotions. File read from local folder or NAS
 api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/avamodel1')
 
-# Analytics APIs
+### Analytics APIs
+# Add new row to analytics table
 api.add_resource(resources.AddAnalytics, '/api/analytics/add')
-api.add_resource(resources.AllAnalytics, '/api/analytics/list/all')
+# List all the analytics
+api.add_resource(resources.AllAnalytics, '/api/analytics/list/all')	
+# List all the incoming calls analytics
 api.add_resource(resources.AllAnalyticsIncomings, '/api/analytics/list/incomings')
+# List all the outgoing call analytics
 api.add_resource(resources.AllAnalyticsOutgoings, '/api/analytics/list/outgoings')
+# List all the processed files in analytics
 api.add_resource(resources.AllAnalyticsFiles, '/api/analytics/list/files')
+# List all the extensions in analytics
 api.add_resource(resources.AllAnalyticsExtensions, '/api/analytics/list/extensions')
-api.add_resource(resources.AnalyticsByExtension, '/api/analytics/filter/byextension')
-api.add_resource(resources.AnalyticsByUsername, '/api/analytics/filter/byusername')
-api.add_resource(resources.AnalyticsByFilename, '/api/analytics/filter/byfilename')
-api.add_resource(resources.AnalyticsByMonth, '/api/analytics/filter/bymonth')
-api.add_resource(resources.AnalyticsByDay, '/api/analytics/filter/byday')
-api.add_resource(resources.AnalyticsByYear, '/api/analytics/filter/byyear')
-# api.add_resource(resources.AnalyticsByFilename, '/api/analytics/byfilename')
+# Filter analytics by a specific extension
+api.add_resource(resources.AnalyticsByExtension, '/api/analytics/filter/extension')
+# Filter analytics by a username
+api.add_resource(resources.AnalyticsByUsername, '/api/analytics/filter/username')
+# Filter analytics by a filename
+api.add_resource(resources.AnalyticsByFilename, '/api/analytics/filter/filename')
+# Filter analytics by a specific day
+api.add_resource(resources.AnalyticsByDay, '/api/analytics/filter/day')
+# Get average call duration in a specific day
+api.add_resource(resources.AnalyticsByDayAverageDuration, '/api/analytics/filter/day/duration/average')
+# Get average angry in a specific day
+api.add_resource(resources.AnalyticsByDayAverageAngry, '/api/analytics/filter/day/angry/average')
+# Get average happy in a specific day
+api.add_resource(resources.AnalyticsByDayAverageHappy, '/api/analytics/filter/day/happy/average')
+# Get average neutral in a specific day
+api.add_resource(resources.AnalyticsByDayAverageNeutral, '/api/analytics/filter/day/neutral/average')
+# Get average sad in a specific day
+api.add_resource(resources.AnalyticsByDayAverageSad, '/api/analytics/filter/day/sad/average')
+# Get average fear in a specific day
+api.add_resource(resources.AnalyticsByDayAverageFear, '/api/analytics/filter/day/fear/average')
+# Get average emotions in a specific day
+api.add_resource(resources.AnalyticsByDayAverageEmotions, '/api/analytics/filter/day/emotions/average')
+# Get total number of calls in a specific day
+api.add_resource(resources.AnalyticsByDayTotalCalls, '/api/analytics/filter/day/call/total')
+# Get total number of incoming calls in a specific day
+api.add_resource(resources.AnalyticsByDayTotalIncomingCalls, '/api/analytics/filter/day/call/incoming')
+# Get total number of outgoing calls in a specific day
+api.add_resource(resources.AnalyticsByDayTotalOutgoingCalls, '/api/analytics/filter/day/call/outgoing')
+# Get max call duration in a specific day
+# api.add_resource(resources.AnalyticsByDayAverageDuration, '/api/analytics/filter/day/duration/max')
+# Get min call duration in a specific day
+# api.add_resource(resources.AnalyticsByDayAverageDuration, '/api/analytics/filter/day/duration/min')
+# Filter analytics by a specific month
+api.add_resource(resources.AnalyticsByMonth, '/api/analytics/filter/month')
+# Get average call duration in a specific month
+api.add_resource(resources.AnalyticsByMonthAverageDuration, '/api/analytics/filter/month/duration/average')
+# Filter analytics by a specific year
+api.add_resource(resources.AnalyticsByYear, '/api/analytics/filter/year')
+# Get average call duration in a specific year
+api.add_resource(resources.AnalyticsByYearAverageDuration, '/api/analytics/filter/year/duration/average')
 
 if __name__ == '_main_':
 	app.run(host='0.0.0.0',threaded=True)

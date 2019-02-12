@@ -1,5 +1,6 @@
 from run import db
 from passlib.hash import pbkdf2_sha256 as sha256
+from sqlalchemy import func
 
 class UserModel(db.Model):
     __tablename__ = 'users'
@@ -191,7 +192,6 @@ class AnalyticsModel(db.Model):
 
     @classmethod
     def AnalyticsByExtension(cls, extension):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -216,7 +216,6 @@ class AnalyticsModel(db.Model):
 
     @classmethod
     def AnalyticsByUsername(cls, username):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -241,7 +240,6 @@ class AnalyticsModel(db.Model):
 
     @classmethod
     def AnalyticsByFilename(cls, filename):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -266,7 +264,6 @@ class AnalyticsModel(db.Model):
 
     @classmethod
     def AnalyticsByDay(cls, day, month, year):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -287,11 +284,98 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(day = day).filter_by(month = month).filter_by(year = year).all()))}
+        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).all()))}
+
+    @classmethod
+    def AnalyticsByDayAverageDuration(cls, day, month, year):
+        def to_json(x):
+            return {
+                'duration': x.duration,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageAngry(cls, day, month, year):
+        def to_json(x):
+            return {
+                'angry': x.angry,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.angry).label('angry')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageHappy(cls, day, month, year):
+        def to_json(x):
+            return {
+                'happy': x.happy,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.happy).label('happy')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageNeutral(cls, day, month, year):
+        def to_json(x):
+            return {
+                'neutral': x.neutral,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.neutral).label('neutral')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageSad(cls, day, month, year):
+        def to_json(x):
+            return {
+                'sad': x.sad,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.sad).label('sad')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageFear(cls, day, month, year):
+        def to_json(x):
+            return {
+                'fear': x.fear,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.fear).label('fear')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': list(map(lambda x: to_json(x), query))}
+
+    @classmethod
+    def AnalyticsByDayAverageEmotions(cls, day, month, year):
+        angry = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.angry).label('angry')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        happy = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.happy).label('happy')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        neutral = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.neutral).label('neutral')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        sad = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.sad).label('sad')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        fear = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.fear).label('fear')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
+        return {'result': [{'angry': angry.first()[0], 
+                            'happy': happy.first()[0],
+                            'neutral': neutral.first()[0],
+                            'sad': sad.first()[0],
+                            'fear': fear.first()[0]}]}
+
+    @classmethod
+    def AnalyticsByDayTotalCalls(cls, day, month, year):
+        query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).count()
+        return {'result': [{'calls': query}]}
+
+    @classmethod
+    def AnalyticsByDayTotalIncomingCalls(cls, day, month, year):
+        query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).filter_by(direction = 1).count()
+        return {'result': [{'calls': query}]}
+
+    @classmethod
+    def AnalyticsByDayTotalOutgoingCalls(cls, day, month, year):
+        query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).filter_by(direction = 0).count()
+        return {'result': [{'calls': query}]}
 
     @classmethod
     def AnalyticsByMonth(cls, month, year):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -312,11 +396,20 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(month = month).filter_by(year = year).all()))}
+        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).all()))}
+
+    @classmethod
+    def AnalyticsByMonthAverageDuration(cls, month, year):
+        def to_json(x):
+            return {
+                'duration': x.duration,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year).filter_by(month = month)
+        return {'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByYear(cls, year):
-        print(cls)
         def to_json(x):
             return {
                 'extension': x.extension,
@@ -338,4 +431,14 @@ class AnalyticsModel(db.Model):
             }
 
         return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).all()))}
+
+    @classmethod
+    def AnalyticsByYearAverageDuration(cls, year):
+        def to_json(x):
+            return {
+                'duration': x.duration,
+            }
+
+        query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year)
+        return {'result': list(map(lambda x: to_json(x), query))}
 
