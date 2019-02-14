@@ -75,7 +75,28 @@ For ava:
                 server_name your_domain www.your_domain;
 
                 location / {
+                add_header 'Access-Control-Allow-Origin' '__host_address__';
+                add_header 'Access-Control-Allow_Credentials' 'true';
+                add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,Origin,DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range';
+                add_header 'Access-Control-Allow-Methods' 'GET,POST,OPTIONS,PUT,DELETE,PATCH';
+
+                if ($request_method = 'OPTIONS') {
+                    add_header 'Access-Control-Allow-Origin' '__host_address__';
+                    add_header 'Access-Control-Allow_Credentials' 'true';
+                    add_header 'Access-Control-Allow-Headers' 'Authorization,Accept,Origin,DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range';
+                    add_header 'Access-Control-Allow-Methods' 'GET,POST,OPTIONS,PUT,DELETE,PATCH';
+                    add_header 'Access-Control-Max-Age' 1728000;
+                    add_header 'Content-Type' 'text/plain charset=UTF-8';
+                    add_header 'Content-Length' 0;
+                    return 204;
+                }
+
+                location / {
                         include proxy_params;
+                        proxy_redirect off;
+                        proxy_set_header host $host;
+                        proxy_set_header X-real-ip $remote_addr;
+                        proxy_set_header X-forward-for $proxy_add_x_forwarded_for;
                         proxy_pass http://unix:/home/__user__/saba/saba.sock;
                 }
         }
@@ -94,6 +115,19 @@ For ava:
 
         sudo ufw allow 'Nginx Full'
 
+10. Configure ui:
+
+        sudo mv /var/www/html /var/www/html.back
+        sudo ln -s ~/Saba/ui /var/www/html
+        sudo chown -R user:user /var/www/html
+
+11. Configure database:
+
+        rm -rf app.db
+
+9. Use postman to insert user into database
+
+9. Login to Saba Analytics
 
 <h1>How to use UI?</h1>
-HTML UI located in ui folder. In order to use it in chrome you should install an extension named "Allow-Controll-Allow-Origin"
+HTML UI located in ui folder.
