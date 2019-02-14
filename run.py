@@ -48,16 +48,20 @@ api.add_resource(resources.TokenRefresh, '/api/token/refresh')
 api.add_resource(resources.AllUsers, '/api/users')
 # I dont know what is this!!!
 api.add_resource(resources.SecretResource, '/api/secret')
+# Check token validation 
+api.add_resource(resources.TokenValidate, '/api/token/validate')
 
 ### Emotion analysis APIs
-# Analyze file for emotions. File upload via POST
+# Analyze file for emotions. File upload via POST. results will be added to db
 api.add_resource(resources.PredictWithModel1, '/api/predict/model1')
+# Analyze file for emotions. File upload via POST. results will not added to db
+api.add_resource(resources.PredictWithModel1Test, '/api/predict/model1test')
 # Analyze file for emotions. File read from local folder or NAS
-api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/avamodel1')
+# api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/avamodel1')
 
 ### Analytics APIs
 # Add new row to analytics table
-api.add_resource(resources.AddAnalytics, '/api/analytics/add')
+# api.add_resource(resources.AddAnalytics, '/api/analytics/add')
 # List all the analytics
 api.add_resource(resources.AllAnalytics, '/api/analytics/list/all')	
 # List all the incoming calls analytics

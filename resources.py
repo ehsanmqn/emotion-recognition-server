@@ -52,7 +52,7 @@ class AddAnalytics(Resource):
         data = parser.parse_args()
 
         if AnalyticsModel.findByFilename(data['filename']):
-            return {'message': 'File {} already exists'. format(data['filename'])}
+            return {'request': 'failed', 'message': 'File {} already exists'. format(data['filename'])}
 
         newAnalytics = AnalyticsModel(
             extension = data['extension'],
@@ -74,15 +74,14 @@ class AddAnalytics(Resource):
         )
         try:
             newAnalytics.save_to_db()
-            return {
-                'message': 'Analytics {} added'.format(data['filename'])
-                }
+            return {'request': 'ok', 'message': 'Analytics {} added'.format(data['filename'])}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'request': 'failed', 'message': 'Something went wrong'}, 500
 
 
 class AllAnalytics(Resource):
     """docstring for AnalyticsByExtension"""
+    @jwt_required
     def get(self):
         return AnalyticsModel.ReturnAll()
     
@@ -143,7 +142,7 @@ class AnalyticsByFilename(Resource):
 
         data = parser.parse_args()
 
-        return AnalyticsModel.AnalyticsByFilename(data['filename'])
+        return jsonify(AnalyticsModel.AnalyticsByFilename(data['filename']))
 
 class AnalyticsByDay(Resource):
     """docstring for AnalyticsByExtension"""
@@ -327,7 +326,7 @@ class UserRegistration(Resource):
 
         data = parser.parse_args()
         if UserModel.find_by_username(data['username']):
-            return {'message': 'User {} already exists'. format(data['username'])}
+            return {'request': 'failed', 'message': 'User {} already exists'. format(data['username'])}
 
         new_user = UserModel(
             username = data['username'],
@@ -338,31 +337,37 @@ class UserRegistration(Resource):
             access_token = create_access_token(identity = data['username'])
             refresh_token = create_refresh_token(identity = data['username'])
             return {
+                'request': 'ok',
                 'message': 'User {} was created'.format(data['username']),
                 'access_token': access_token,
                 'refresh_token': refresh_token
                 }
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'request': 'failed', 'message': 'Something went wrong'}, 500
 
 
 class UserLogin(Resource):
     def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+        parser.add_argument('password', help = 'This field cannot be blank', required = True)
+
         data = parser.parse_args()
         current_user = UserModel.find_by_username(data['username'])
         if not current_user:
-            return {'message': 'User {} doesn\'t exist'.format(data['username'])}
+            return {'request': 'failed', 'message': 'User {} doesn\'t exist'.format(data['username'])}
         
         if UserModel.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity = data['username'])
             refresh_token = create_refresh_token(identity = data['username'])
             return {
+                'request': 'ok',
                 'message': 'Logged in as {}'.format(current_user.username),
                 'access_token': access_token,
                 'refresh_token': refresh_token
                 }
         else:
-            return {'message': 'Wrong credentials'}
+            return {'request': 'failed', 'message': 'Wrong credentials'}
       
       
 class UserLogoutAccess(Resource):
@@ -372,9 +377,9 @@ class UserLogoutAccess(Resource):
         try:
             revoked_token = RevokedTokenModel(jti = jti)
             revoked_token.add()
-            return {'message': 'Access token has been revoked'}
+            return {'request': 'ok', 'message': 'Access token has been revoked'}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'request': 'failed', 'message': 'Something went wrong'}, 500
       
       
 class UserLogoutRefresh(Resource):
@@ -384,9 +389,9 @@ class UserLogoutRefresh(Resource):
         try:
             revoked_token = RevokedTokenModel(jti = jti)
             revoked_token.add()
-            return {'message': 'Refresh token has been revoked'}
+            return {'request': 'ok', 'message': 'Refresh token has been revoked'}
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'request': 'failed', 'message': 'Something went wrong'}, 500
       
       
 class TokenRefresh(Resource):
@@ -396,7 +401,12 @@ class TokenRefresh(Resource):
         access_token = create_access_token(identity = current_user)
         return {'access_token': access_token}
       
-      
+class TokenValidate(Resource):
+    """docstring for TokenValidate"""
+    @jwt_required
+    def get(self):
+        return {'request': 'ok', 'token': 'valid'}
+        
 class AllUsers(Resource):
     def get(self):
         return UserModel.return_all()
@@ -426,42 +436,73 @@ class PredictWithModel1(Resource):
             os.mkdir(_dir)
         filename = secure_filename(files.filename)
 
+        # Check for input data
+        parser = reqparse.RequestParser()
+        parser.add_argument('extension', help = 'This field cannot be blank', required = True)
+        parser.add_argument('caller', help = 'This field cannot be blank', required = True)
+        parser.add_argument('callee', help = 'This field cannot be blank', required = True)
+        parser.add_argument('username', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
         # Check for redunduncy
         if AnalyticsModel.findByFilename(filename):
-            return {'message': 'File {} already exists'. format(filename)}
+            return {'request': 'failed', 'message': 'File {} already exists'. format(filename)}
 
         to_path = os.path.join(_dir, filename)
         files.save(to_path)
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         # This lines added after adding analytics to SABA
-        data = result['result'][0]
+        emotions = result['result'][0]
         dt = datetime.datetime.today()
+        
+        direction = 1   # 1 means incoming
+        if(data['caller'] == data['extension']):
+            direction = 0;
+
         newAnalytics = AnalyticsModel(
-            extension = 4111,
-            username = '4111',
+            extension = data['extension'],
+            caller = data['caller'],
+            callee = data['callee'],
+            username = data['username'],
             filename = filename,
             time = datetime.datetime.now(),
             day = dt.day,
             month = dt.month,
             year = dt.year,
             duration = 123,
-            direction = 1,
-            location = 'Tehran',
-            status = 'calling',
-            angry = data['angry'],
-            happy = data['happy'],
-            neutral = data['neutral'],
-            sad = data['sad'],
-            fear = data['fear']
+            direction = direction,
+            location = '',
+            status = '',
+            angry = emotions['angry'],
+            happy = emotions['happy'],
+            neutral = emotions['neutral'],
+            sad = emotions['sad'],
+            fear = emotions['fear']
         )
         try:
             newAnalytics.save_to_db()
-            return {
-                'message': 'Analytics {} added'.format(filename)
-                }
+            return jsonify(result)
         except:
-            return {'message': 'Something went wrong'}, 500
+            return {'request': 'failed', 'message': 'Something went wrong'}, 500
+
+class PredictWithModel1Test(Resource):
+    # @jwt_required
+    def post(self):
+        files = request.files['file']
+        PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
+        UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
+        ALLOWED_EXTENSIONS = set(['wav'])
+        app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+        _dir = os.path.join(UPLOAD_FOLDER)
+        if not os.path.isdir(_dir):
+            os.mkdir(_dir)
+        filename = secure_filename(files.filename)
+
+        to_path = os.path.join(_dir, filename)
+        files.save(to_path)
+        result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         return jsonify(result)
 

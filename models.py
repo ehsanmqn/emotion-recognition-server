@@ -8,6 +8,7 @@ class UserModel(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(120), unique = True, nullable = False)
     password = db.Column(db.String(120), nullable = False)
+    # status = db.Column(db.Integer, nullable = False)
     
     def save_to_db(self):
         db.session.add(self)
@@ -31,9 +32,9 @@ class UserModel(db.Model):
         try:
             num_rows_deleted = db.session.query(cls).delete()
             db.session.commit()
-            return {'message': '{} row(s) deleted'.format(num_rows_deleted)}
+            return {'request': 'ok', 'message': '{} row(s) deleted'.format(num_rows_deleted)}
         except:
-            return {'message': 'Something went wrong'}
+            return {'request': 'failed', 'message': 'Something went wrong'}
 
     @staticmethod
     def generate_hash(password):
@@ -46,6 +47,7 @@ class UserModel(db.Model):
 
 class RevokedTokenModel(db.Model):
     __tablename__ = 'revoked_tokens'
+
     id = db.Column(db.Integer, primary_key = True)
     jti = db.Column(db.String(120))
     
@@ -63,6 +65,8 @@ class AnalyticsModel(db.Model):
 
     id = db.Column(db.Integer, primary_key = True)
     extension = db.Column(db.Integer, nullable = False)
+    caller = db.Column(db.Integer, nullable = False)
+    callee = db.Column(db.Integer, nullable = False)
     username = db.Column(db.String(120), nullable = False)
     filename = db.Column(db.String(250), unique = True, nullable = False)
     time = db.Column(db.DateTime, nullable = False)
@@ -96,6 +100,8 @@ class AnalyticsModel(db.Model):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -113,7 +119,10 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.all()))}
+        items = list(map(lambda x: to_json(x), AnalyticsModel.query.all()))
+        return {'request': 'ok',
+                'result-size': len(items),
+                'result': items}
 
     @classmethod
     def ReturnAllFilenames(cls):
@@ -122,7 +131,7 @@ class AnalyticsModel(db.Model):
                 'filename': x.filename,
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.all()))}
 
     @classmethod
     def ReturnAllExtensions(cls):
@@ -131,13 +140,15 @@ class AnalyticsModel(db.Model):
                 'extension': x.extension,
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.all()))}
 
     @classmethod
     def ReturnAllIncomings(cls):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -155,13 +166,15 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(direction = 1).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(direction = 1).all()))}
 
     @classmethod
     def ReturnAllOutgoings(cls):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -179,22 +192,24 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(direction = 0).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(direction = 0).all()))}
 
     @classmethod
     def DeleteAll(cls):
         try:
             num_rows_deleted = db.session.query(cls).delete()
             db.session.commit()
-            return {'message': '{} row(s) deleted'.format(num_rows_deleted)}
+            return {'request': 'ok', 'message': '{} row(s) deleted'.format(num_rows_deleted)}
         except:
-            return {'message': 'Something went wrong'}
+            return {'request': 'failed', 'message': 'Something went wrong'}
 
     @classmethod
     def AnalyticsByExtension(cls, extension):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -212,13 +227,15 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(extension = extension).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(extension = extension).all()))}
 
     @classmethod
     def AnalyticsByUsername(cls, username):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -236,13 +253,15 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(username = username).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(username = username).all()))}
 
     @classmethod
     def AnalyticsByFilename(cls, filename):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -260,13 +279,15 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(filename = filename).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(filename = filename).all()))}
 
     @classmethod
     def AnalyticsByDay(cls, day, month, year):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -284,7 +305,7 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).all()))}
 
     @classmethod
     def AnalyticsByDayAverageDuration(cls, day, month, year):
@@ -294,7 +315,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageAngry(cls, day, month, year):
@@ -304,7 +325,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.angry).label('angry')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageHappy(cls, day, month, year):
@@ -314,7 +335,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.happy).label('happy')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageNeutral(cls, day, month, year):
@@ -324,7 +345,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.neutral).label('neutral')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageSad(cls, day, month, year):
@@ -334,7 +355,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.sad).label('sad')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageFear(cls, day, month, year):
@@ -344,7 +365,7 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.fear).label('fear')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByDayAverageEmotions(cls, day, month, year):
@@ -353,7 +374,7 @@ class AnalyticsModel(db.Model):
         neutral = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.neutral).label('neutral')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
         sad = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.sad).label('sad')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
         fear = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.fear).label('fear')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'result': [{'angry': angry.first()[0], 
+        return {'request': 'ok', 'result': [{'angry': angry.first()[0], 
                             'happy': happy.first()[0],
                             'neutral': neutral.first()[0],
                             'sad': sad.first()[0],
@@ -362,23 +383,25 @@ class AnalyticsModel(db.Model):
     @classmethod
     def AnalyticsByDayTotalCalls(cls, day, month, year):
         query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).count()
-        return {'result': [{'calls': query}]}
+        return {'request': 'ok', 'result': [{'calls': query}]}
 
     @classmethod
     def AnalyticsByDayTotalIncomingCalls(cls, day, month, year):
         query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).filter_by(direction = 1).count()
-        return {'result': [{'calls': query}]}
+        return {'request': 'ok', 'result': [{'calls': query}]}
 
     @classmethod
     def AnalyticsByDayTotalOutgoingCalls(cls, day, month, year):
         query = AnalyticsModel.query.filter_by(year = year).filter_by(month = month).filter_by(day = day).filter_by(direction = 0).count()
-        return {'result': [{'calls': query}]}
+        return {'request': 'ok', 'result': [{'calls': query}]}
 
     @classmethod
     def AnalyticsByMonth(cls, month, year):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -396,7 +419,7 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).filter_by(month = month).all()))}
 
     @classmethod
     def AnalyticsByMonthAverageDuration(cls, month, year):
@@ -406,13 +429,15 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year).filter_by(month = month)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
     @classmethod
     def AnalyticsByYear(cls, year):
         def to_json(x):
             return {
                 'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
                 'username': x.username,
                 'filename': x.filename,
                 # 'time': x.time,
@@ -430,7 +455,7 @@ class AnalyticsModel(db.Model):
                 'fear': x.fear
             }
 
-        return {'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).all()))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(year = year).all()))}
 
     @classmethod
     def AnalyticsByYearAverageDuration(cls, year):
@@ -440,5 +465,5 @@ class AnalyticsModel(db.Model):
             }
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year)
-        return {'result': list(map(lambda x: to_json(x), query))}
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
 
