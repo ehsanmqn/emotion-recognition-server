@@ -1,6 +1,6 @@
 from run import app
 from flask import jsonify
-from flask import Flask, url_for, send_from_directory, request
+from flask import Flask, url_for, send_from_directory, request, render_template, redirect
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, jwt_required
@@ -9,8 +9,11 @@ from werkzeug import secure_filename
 import sys
 
 @app.route('/')
-def index():
-    return jsonify({'message': 'Hello, Saba is waiting for you!'})
+def home():
+    return redirect("/admin")
+
+# def index():
+#     return jsonify({'message': 'Hello, Saba is waiting for you!'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True)

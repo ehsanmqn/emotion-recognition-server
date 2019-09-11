@@ -2,17 +2,37 @@ from flask import Flask
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
 api = Api(app)
 
+# sqlite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://saba:sabapassword@192.168.1.149/saba'
+app.config['SQLALCHEMY_ECHO'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'some-secret-string'
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = 'matrix'
+app.config['BASIC_AUTH_FORCE'] = True
+
+# set optional bootswatch theme
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+basic_auth = BasicAuth(app)
 
 db = SQLAlchemy(app)
+# db.create_all() # In case user table doesn't exists already. Else remove it.
 
 from models import AnalyticsModel, UserModel
+
+admin = Admin(app, name='Avicom | Saba', template_mode='bootstrap3')
+admin.add_view(ModelView(UserModel, db.session))
+admin.add_view(ModelView(AnalyticsModel, db.session))
 
 @app.before_first_request
 def create_tables():
@@ -26,12 +46,18 @@ jwt = JWTManager(app)
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
+@app.route('/secret')
+@basic_auth.required
+def secret_view():
+    return render_template('secret.html')
+
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
     jti = decrypted_token['jti']
     return models.RevokedTokenModel.is_jti_blacklisted(jti)
 
 import views, models, resources
+
 
 ### User authentication APIs
 # Register new user
@@ -48,7 +74,7 @@ api.add_resource(resources.TokenRefresh, '/api/token/refresh')
 api.add_resource(resources.AllUsers, '/api/users')
 # I dont know what is this!!!
 api.add_resource(resources.SecretResource, '/api/secret')
-# Check token validation 
+# Check token validation
 api.add_resource(resources.TokenValidate, '/api/token/validate')
 
 ### Emotion analysis APIs
@@ -65,7 +91,7 @@ api.add_resource(resources.SetCallUidForAVA, '/api/predict/setCallUid')
 # Add new row to analytics table
 # api.add_resource(resources.AddAnalytics, '/api/analytics/add')
 # List all the analytics
-api.add_resource(resources.AllAnalytics, '/api/analytics/list/all')	
+api.add_resource(resources.LastAnalytics, '/api/analytics/list')
 # List all the incoming calls analytics
 api.add_resource(resources.AllAnalyticsIncomings, '/api/analytics/list/incomings')
 # List all the outgoing call analytics

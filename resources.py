@@ -29,7 +29,7 @@ app.logger.setLevel(logging.INFO)
 
 class AddAnalytics(Resource):
     """docstring for AddAnalytics"""
-    
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('extension', help = 'This field cannot be blank', required = True)
@@ -84,10 +84,9 @@ class AllAnalytics(Resource):
     # @jwt_required
     def get(self):
         return AnalyticsModel.ReturnAll()
-    
+
     def delete(self):
         return AnalyticsModel.DeleteAll()
-
 
 class AllAnalyticsIncomings(Resource):
     """docstring for AnalyticsByExtension"""
@@ -111,7 +110,7 @@ class AllAnalyticsExtensions(Resource):
     """docstring for AnalyticsByExtension"""
     def get(self):
         return AnalyticsModel.ReturnAllExtensions()
-    
+
 
 class AnalyticsByExtension(Resource):
     """docstring for AnalyticsByExtension"""
@@ -122,6 +121,16 @@ class AnalyticsByExtension(Resource):
         data = parser.parse_args()
 
         return AnalyticsModel.AnalyticsByExtension(data['extension'])
+
+class LastAnalytics(Resource):
+    """docstring for AnalyticsByCount"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('count', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        return AnalyticsModel.AnalyticsByCount(data['count'])
 
 
 class AnalyticsByUsername(Resource):
@@ -365,7 +374,7 @@ class UserLogin(Resource):
         current_user = UserModel.find_by_username(data['username'])
         if not current_user:
             return {'request': 'failed', 'message': 'User {} doesn\'t exist'.format(data['username'])}
-        
+
         if UserModel.verify_hash(data['password'], current_user.password):
             access_token = create_access_token(identity = data['username'])
             refresh_token = create_refresh_token(identity = data['username'])
@@ -377,8 +386,8 @@ class UserLogin(Resource):
                 }
         else:
             return {'request': 'failed', 'message': 'Wrong credentials'}
-      
-      
+
+
 class UserLogoutAccess(Resource):
     @jwt_required
     def post(self):
@@ -389,8 +398,8 @@ class UserLogoutAccess(Resource):
             return {'request': 'ok', 'message': 'Access token has been revoked'}
         except:
             return {'request': 'failed', 'message': 'Something went wrong'}, 500
-      
-      
+
+
 class UserLogoutRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
@@ -401,29 +410,29 @@ class UserLogoutRefresh(Resource):
             return {'request': 'ok', 'message': 'Refresh token has been revoked'}
         except:
             return {'request': 'failed', 'message': 'Something went wrong'}, 500
-      
-      
+
+
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
         current_user = get_jwt_identity()
         access_token = create_access_token(identity = current_user)
         return {'access_token': access_token}
-      
+
 class TokenValidate(Resource):
     """docstring for TokenValidate"""
     @jwt_required
     def get(self):
         return {'request': 'ok', 'token': 'valid'}
-        
+
 class AllUsers(Resource):
     def get(self):
         return UserModel.return_all()
-    
+
     def delete(self):
         return UserModel.delete_all()
-      
-      
+
+
 class SecretResource(Resource):
     # @jwt_required
     def get(self):
@@ -462,11 +471,11 @@ class PredictWithModel1(Resource):
         files.save(to_path)
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         os.remove(UPLOAD_FOLDER + filename)
-        
+
         # This lines added after adding analytics to SABA
         emotions = result['result'][0]
         dt = datetime.datetime.today()
-        
+
         direction = 1   # 1 means incoming
         if(data['caller'] == data['extension']):
             direction = 0;
@@ -543,7 +552,7 @@ class SetCallUidForAVA(Resource):
             return {'request': 'failed', 'message': 'File {} already exists'. format(filename)}, 400
 
         dt = datetime.datetime.today()
-        
+
         direction = 1   # 1 means incoming
         # if(data['caller'] == data['extension']):
             # direction = 0;
@@ -585,7 +594,7 @@ class PredictWithModel1ForAVA(Resource):
             return {'request': 'failed', 'message': 'NAS not mount'}, 500
 
         app.config['UPLOAD_FOLDER'] = _dir[:-1]
-        
+
         # Check for input data
         parser = reqparse.RequestParser()
         parser.add_argument('file', help = 'This field cannot be blank', required = True)
@@ -615,8 +624,8 @@ class PredictWithModel1ForAVA(Resource):
 
             try:
                 AnalyticsModel.update_row(filename[:-4],
-                                        emotions['angry'], 
-                                        emotions['happy'], 
+                                        emotions['angry'],
+                                        emotions['happy'],
                                         emotions['neutral'],
                                         emotions['sad'],
                                         emotions['fear'])

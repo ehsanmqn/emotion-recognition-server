@@ -42,7 +42,12 @@ For ava:
 
 3. Install gunicorn:
 
-        pip3 install gunicorn flask flask-restful flask-jwt-extended passlib flask-sqlalchemy scipy sklearn speechpy tensorflow keras pandas
+        pip3 install gunicorn flask flask-restful flask-jwt-extended passlib flask-sqlalchemy scipy peewee flask_peewee flask-admin flask-login sklearn speechpy tensorflow keras pandas
+
+        For mysql-server:
+        sudo apt-get update
+        sudo apt-get install python3-dev **default-libmysqlclient-dev**
+        sudo pip3 install mysqlclient
 
 
 4. Create a unit file ending in .service within the /etc/systemd/system/saba.service directory to begin:

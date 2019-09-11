@@ -9,7 +9,7 @@ class UserModel(db.Model):
     username = db.Column(db.String(120), unique = True, nullable = False)
     password = db.Column(db.String(120), nullable = False)
     # status = db.Column(db.Integer, nullable = False)
-    
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -50,11 +50,11 @@ class RevokedTokenModel(db.Model):
 
     id = db.Column(db.Integer, primary_key = True)
     jti = db.Column(db.String(120))
-    
+
     def add(self):
         db.session.add(self)
         db.session.commit()
-    
+
     @classmethod
     def is_jti_blacklisted(cls, jti):
         query = cls.query.filter_by(jti = jti).first()
@@ -82,7 +82,7 @@ class AnalyticsModel(db.Model):
     neutral = db.Column(db.Float, nullable = False)
     sad = db.Column(db.Float, nullable = False)
     fear = db.Column(db.Float, nullable = False)
-    
+
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
@@ -238,6 +238,32 @@ class AnalyticsModel(db.Model):
             }
 
         return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(extension = extension).all()))}
+
+    @classmethod
+    def AnalyticsByCount(cls, count):
+        def to_json(x):
+            return {
+                # 'extension': x.extension,
+                # 'caller': x.caller,
+                # 'callee': x.callee,
+                # 'username': x.username,
+                'filename': x.filename,
+                # 'time': x.time,
+                'day': x.day,
+                'month': x.month,
+                'year': x.year,
+                # 'duration': x.duration,
+                # 'direction': x.direction,
+                'uuid': x.location,
+                # 'status': x.status,
+                'angry': x.angry,
+                'happy': x.happy,
+                'neutral': x.neutral,
+                'sad': x.sad,
+                'fear': x.fear
+            }
+
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.order_by(AnalyticsModel.id.desc()).limit(count)))}
 
     @classmethod
     def AnalyticsByUsername(cls, username):
@@ -410,7 +436,7 @@ class AnalyticsModel(db.Model):
         neutral = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.neutral).label('neutral')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
         sad = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.sad).label('sad')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
         fear = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.fear).label('fear')).filter_by(year = year).filter_by(month = month).filter_by(day = day)
-        return {'request': 'ok', 'result': [{'angry': angry.first()[0], 
+        return {'request': 'ok', 'result': [{'angry': angry.first()[0],
                             'happy': happy.first()[0],
                             'neutral': neutral.first()[0],
                             'sad': sad.first()[0],
@@ -502,4 +528,3 @@ class AnalyticsModel(db.Model):
 
         query = AnalyticsModel.query.with_entities(func.avg(AnalyticsModel.duration).label('duration')).filter_by(year = year)
         return {'request': 'ok', 'result': list(map(lambda x: to_json(x), query))}
-
