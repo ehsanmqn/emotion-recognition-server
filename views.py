@@ -12,6 +12,5 @@ import sys
 def index():
     return jsonify({'message': 'Hello, Saba is waiting for you!'})
 
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False, threaded=True)

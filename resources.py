@@ -81,7 +81,7 @@ class AddAnalytics(Resource):
 
 class AllAnalytics(Resource):
     """docstring for AnalyticsByExtension"""
-    @jwt_required
+    # @jwt_required
     def get(self):
         return AnalyticsModel.ReturnAll()
     
@@ -143,6 +143,15 @@ class AnalyticsByFilename(Resource):
         data = parser.parse_args()
 
         return jsonify(AnalyticsModel.AnalyticsByFilename(data['filename']))
+
+class AnalyticsByLocation(Resource):
+    """docstring for AnalyticsByExtension"""
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('uid', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+        return jsonify(AnalyticsModel.AnalyticsByLocation(data['uid']))
 
 class AnalyticsByDay(Resource):
     """docstring for AnalyticsByExtension"""
@@ -447,12 +456,13 @@ class PredictWithModel1(Resource):
 
         # Check for redunduncy
         if AnalyticsModel.findByFilename(filename):
-            return {'request': 'failed', 'message': 'File {} already exists'. format(filename)}
+            return {'request': 'failed', 'message': 'File {} already exists'. format(filename)}, 400
 
         to_path = os.path.join(_dir, filename)
         files.save(to_path)
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
+        os.remove(UPLOAD_FOLDER + filename)
+        
         # This lines added after adding analytics to SABA
         emotions = result['result'][0]
         dt = datetime.datetime.today()
@@ -503,22 +513,115 @@ class PredictWithModel1Test(Resource):
         to_path = os.path.join(_dir, filename)
         files.save(to_path)
         result = process.model1GetResult(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
+        os.remove(UPLOAD_FOLDER + filename)
         return jsonify(result)
 
+class SetCallUidForAVA(Resource):
+    # @jwt_required
+    def get(self):
+        # Check for input data
+        parser = reqparse.RequestParser()
+        parser.add_argument('file', help = 'This field cannot be blank', required = True)
+        parser.add_argument('uid', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        filename = request.args.get('file')
+        if(filename[0] == "/"):
+            filename = filename[17:]
+
+        ext = filename[-3:]
+        print(ext)
+        if(ext == "mp3"):
+            filename = filename[:-4]
+
+        print(filename)
+        uid = request.args.get('uid')
+
+        # Check for redunduncy
+        if AnalyticsModel.findByFilename(filename):
+            return {'request': 'failed', 'message': 'File {} already exists'. format(filename)}, 400
+
+        dt = datetime.datetime.today()
+        
+        direction = 1   # 1 means incoming
+        # if(data['caller'] == data['extension']):
+            # direction = 0;
+
+        newAnalytics = AnalyticsModel(
+            extension = "",
+            caller = "",
+            callee = "",
+            username = "",
+            filename = filename,
+            time = datetime.datetime.now(),
+            day = dt.day,
+            month = dt.month,
+            year = dt.year,
+            duration = 1,
+            direction = direction,
+            location = uid,
+            status = '',
+            angry = 0,
+            happy = 0,
+            neutral = 0,
+            sad = 0,
+            fear = 0
+        )
+        try:
+            newAnalytics.save_to_db()
+            return {'request': 'ok', 'message': 'Filename and uid inserted into database'}
+        except:
+            return {'request': 'failed', 'message': 'Something went wrong'}, 400
 
 class PredictWithModel1ForAVA(Resource):
     # @jwt_required
-    def post(self):
-        files = request.form['file']
+    def get(self):
         _dir =""
         with open(os.path.join(APP_STATIC, 'saba.conf')) as f:
             _dir = f.read()
-        if not os.path.isdir(_dir[:-1]):
-            result = "<saba><request>failed</request><model>1</model><result>Directory not found</result></saba>"
-            return result
-        filename = secure_filename(files)
-        app.config['UPLOAD_FOLDER'] = _dir
-        result = process.model1GetResultForAVA(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return result
 
+        if not os.path.isdir(_dir[:-1]):
+            return {'request': 'failed', 'message': 'NAS not mount'}, 500
+
+        app.config['UPLOAD_FOLDER'] = _dir[:-1]
+        
+        # Check for input data
+        parser = reqparse.RequestParser()
+        parser.add_argument('file', help = 'This field cannot be blank', required = True)
+
+        data = parser.parse_args()
+
+        filename = request.args.get('file')
+        if(filename[0] == "/"):
+            filename = filename[17:-3] + "wav"
+        else:
+            filename = filename[:-3] + "wav"
+
+        # Check for file existence
+        # print(filename)
+        if not os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+            # This line added because some files saved with .WAV extension
+            filename = filename[:-3] + "WAV"
+            # print(filename)
+            if not os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
+                return {'request': 'failed', 'message': 'File {} not found'. format(filename[:-4])}, 400
+
+        # Check for redunduncy
+        if AnalyticsModel.findByFilename(filename[:-4]):
+            result = process.model1GetResultForAVA(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # This lines added after adding analytics to SABA
+            emotions = result['result'][0]
+
+            try:
+                AnalyticsModel.update_row(filename[:-4],
+                                        emotions['angry'], 
+                                        emotions['happy'], 
+                                        emotions['neutral'],
+                                        emotions['sad'],
+                                        emotions['fear'])
+                return jsonify(result)
+            except:
+                return {'request': 'failed', 'message': 'Something went wrong'}, 400
+        else:
+            return {'request': 'failed', 'message': 'File not found in database'}, 400

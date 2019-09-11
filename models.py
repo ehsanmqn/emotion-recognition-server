@@ -88,6 +88,16 @@ class AnalyticsModel(db.Model):
         db.session.commit()
 
     @classmethod
+    def update_row(cls, filename, angry, happy, neutral, sad, fear):
+        row = cls.query.filter_by(filename = filename).first()
+        row.angry = angry
+        row.happy = happy
+        row.neutral = neutral
+        row.fear = fear
+        row.sad = sad
+        db.session.commit()
+
+    @classmethod
     def findByExtension(cls, extension):
         return cls.query.filter_by(extension = extension).first()
 
@@ -280,6 +290,32 @@ class AnalyticsModel(db.Model):
             }
 
         return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(filename = filename).all()))}
+
+    @classmethod
+    def AnalyticsByLocation(cls, location):
+        def to_json(x):
+            return {
+                'extension': x.extension,
+                'caller': x.caller,
+                'callee': x.callee,
+                'username': x.username,
+                'filename': x.filename,
+                # 'time': x.time,
+                'day': x.day,
+                'month': x.month,
+                'year': x.year,
+                'duration': x.duration,
+                'direction': x.direction,
+                'uid': x.location,
+                'status': x.status,
+                'angry': x.angry,
+                'happy': x.happy,
+                'neutral': x.neutral,
+                'sad': x.sad,
+                'fear': x.fear
+            }
+
+        return {'request': 'ok', 'result': list(map(lambda x: to_json(x), AnalyticsModel.query.filter_by(location = location).all()))}
 
     @classmethod
     def AnalyticsByDay(cls, day, month, year):

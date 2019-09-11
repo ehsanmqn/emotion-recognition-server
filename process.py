@@ -117,15 +117,29 @@ def model1GetResultForAVA(voice_Selection):
 	quality = Vokaturi.Quality()
 	emotionProbabilities = Vokaturi.EmotionProbabilities()
 	voiceSelection(voice_Selection).extract(quality, emotionProbabilities)
-
 	if quality.valid:
-		result_of = "<saba><request>ok</request><model>1</model><result>"
-		result_of += "<neutral>{neutral:3f}</neutral><happy>{happy:3f}</happy><sad>{sad:3f}</sad><angry>{angry:3f}</angry><fear>{fear:3f}</fear>".format(neutral=emotionProbabilities.neutrality,
-			happy=emotionProbabilities.happiness, 
-			sad=emotionProbabilities.sadness,
-			angry=emotionProbabilities.anger,
-			fear=emotionProbabilities.fear)
-		result_of += "</result></saba>"
+		result_of ={
+		"request":"ok",
+		"model": "1",
+		"result":[ {
+		"neutral":"%.3f"%emotionProbabilities.neutrality,
+		"happy":"%3f"%emotionProbabilities.happiness,
+		"sad":" %.3f" % emotionProbabilities.sadness,
+		"angry":" %.3f" % emotionProbabilities.anger,
+		"fear":" %.3f" % emotionProbabilities.fear
+		}]}
 	else:
-		result_of = result_of = "<saba><request>failed</request></saba>"
+		result_of={"request":"null", "result":[]}
 	return result_of
+	
+	# if quality.valid:
+	# 	result_of = "<saba><request>ok</request><model>1</model><result>"
+	# 	result_of += "<neutral>{neutral:3f}</neutral><happy>{happy:3f}</happy><sad>{sad:3f}</sad><angry>{angry:3f}</angry><fear>{fear:3f}</fear>".format(neutral=emotionProbabilities.neutrality,
+	# 		happy=emotionProbabilities.happiness, 
+	# 		sad=emotionProbabilities.sadness,
+	# 		angry=emotionProbabilities.anger,
+	# 		fear=emotionProbabilities.fear)
+	# 	result_of += "</result></saba>"
+	# else:
+	# 	result_of = result_of = "<saba><request>failed</request></saba>"
+	# return result_of

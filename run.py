@@ -57,7 +57,9 @@ api.add_resource(resources.PredictWithModel1, '/api/predict/model1')
 # Analyze file for emotions. File upload via POST. results will not added to db
 api.add_resource(resources.PredictWithModel1Test, '/api/predict/model1test')
 # Analyze file for emotions. File read from local folder or NAS
-# api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/avamodel1')
+api.add_resource(resources.PredictWithModel1ForAVA, '/api/predict/model2')
+# Analyze file for emotions. File read from local folder or NAS
+api.add_resource(resources.SetCallUidForAVA, '/api/predict/setCallUid')
 
 ### Analytics APIs
 # Add new row to analytics table
@@ -78,6 +80,8 @@ api.add_resource(resources.AnalyticsByExtension, '/api/analytics/filter/extensio
 api.add_resource(resources.AnalyticsByUsername, '/api/analytics/filter/username')
 # Filter analytics by a filename
 api.add_resource(resources.AnalyticsByFilename, '/api/analytics/filter/filename')
+# Filter analytics by a specific a unique id (Currently saving in location column)
+api.add_resource(resources.AnalyticsByLocation, '/api/analytics/filter/uid')
 # Filter analytics by a specific day
 api.add_resource(resources.AnalyticsByDay, '/api/analytics/filter/day')
 # Get average call duration in a specific day
