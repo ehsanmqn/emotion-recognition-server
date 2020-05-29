@@ -141,3 +141,14 @@ For ava:
 
 <h1>How to use UI?</h1>
 HTML UI located in ui folder.
+
+15. If you have problem with Nginx that add comma to the URL remove include proxy_params; from configuratoin and first line from /etc/nginx/proxy_params
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	proxy_set_header X-Forwarded-Proto $scheme;
+
+16. If you got 502 Bad Gateway in long lasting request increase keepalive
+	1. Increase keepalive time in gunicorn by adding --keepalive 90 to gunicorn command
+	2. Increase Nginx keepalive time by adding proxy_connect_timeout 120s; and proxy_read_timeout 200s; to the http section in nginx.conf
+
+
