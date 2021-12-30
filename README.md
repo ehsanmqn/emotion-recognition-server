@@ -1,6 +1,7 @@
 # Saba
 
-Speech Emotion Recognition System (Saba):
+Speech Emotion Recognition API using FLASK
+This server uses [Vokaturi](https://vokaturi.com/) as the emotion recognition engine
 
 In order to run Saba serer enter command bellow:
 
