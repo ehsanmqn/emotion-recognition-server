@@ -1,6 +1,6 @@
 # Saba
 
-Speech Emotion Recognition API using FLASK
+Speech Emotion Recognition API using Flask.
 This server uses [Vokaturi](https://vokaturi.com/) as the emotion recognition engine
 
 In order to run Saba serer enter command bellow:
